@@ -35,7 +35,7 @@ export default function ObjectDetailScreen() {
                 />
             ) : null}
             <View style={styles.details}>
-                <Text style={styles.name}>{object.name}</Text>
+                <Text style={styles.name}>{object.title}</Text>
                 {object.description ? (
                     <Text style={styles.description}>{object.description}</Text>
                 ) : null}

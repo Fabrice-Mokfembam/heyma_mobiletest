@@ -7,6 +7,7 @@ class ApiService {
     private api: AxiosInstance;
 
     constructor() {
+        console.log('API Base URL:', API_BASE_URL);
         this.api = axios.create({
             baseURL: API_BASE_URL,
             timeout: 10000,
@@ -24,7 +25,22 @@ class ApiService {
         this.api.interceptors.response.use(
             (response) => response,
             (error) => {
-                console.error('API Error:', error.response?.data || error.message);
+                if (error.response) {
+                    // The request was made and the server responded with a status code
+                    // that falls out of the range of 2xx
+                    console.error('API Error Response:', {
+                        status: error.response.status,
+                        data: error.response.data,
+                        headers: error.response.headers,
+                    });
+                } else if (error.request) {
+                    // The request was made but no response was received
+                    console.error('API Error Request (No Response):', error.message);
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    console.error('API Error Setup:', error.message);
+                }
+                console.error('API Error Config:', error.config);
                 return Promise.reject(error);
             }
         );
@@ -32,18 +48,18 @@ class ApiService {
 
     // Object CRUD operations
     async getObjects(): Promise<any[]> {
-        const response = await this.api.get('/api/objects');
+        const response = await this.api.get('/objects');
         return response.data;
     }
 
     async getObjectById(id: string): Promise<any> {
-        const response = await this.api.get(`/api/objects/${id}`);
+        const response = await this.api.get(`/objects/${id}`);
         return response.data;
     }
 
     async createObject(data: CreateObjectRequest): Promise<any> {
         const formData = new FormData();
-        formData.append('title', data.name); // Using 'title' as per spec, aligning with 'name' property
+        formData.append('title', data.title);
         if (data.description) {
             formData.append('description', data.description);
         }
@@ -55,7 +71,7 @@ class ApiService {
             } as any);
         }
 
-        const response = await this.api.post('/api/objects', formData, {
+        const response = await this.api.post('/objects', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
@@ -64,7 +80,7 @@ class ApiService {
     }
 
     async deleteObject(id: string): Promise<void> {
-        await this.api.delete(`/api/objects/${id}`);
+        await this.api.delete(`/objects/${id}`);
     }
 }
 

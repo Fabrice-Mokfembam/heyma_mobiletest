@@ -23,11 +23,8 @@ export const useCreateObject = () => {
 
     return useMutation({
         mutationFn: (objectData: CreateObjectRequest) => apiService.createObject(objectData),
-        onSuccess: (newObject: any) => {
-            // Optimistic update or refetch
-            queryClient.setQueryData(['objects'], (old: any[] | undefined) => {
-                return old ? [newObject, ...old] : [newObject];
-            });
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['objects'] });
         },
     });
 };
@@ -38,9 +35,8 @@ export const useDeleteObject = () => {
     return useMutation({
         mutationFn: (id: string) => apiService.deleteObject(id),
         onSuccess: (data, id) => {
-            queryClient.setQueryData(['objects'], (old: any[] | undefined) => {
-                return old ? old.filter(obj => obj.id !== id && obj._id !== id) : [];
-            });
+            queryClient.invalidateQueries({ queryKey: ['objects'] });
+            queryClient.invalidateQueries({ queryKey: ['object', id] });
         }
     });
 };

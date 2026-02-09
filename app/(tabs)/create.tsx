@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -7,15 +7,17 @@ import { apiService } from '../../src/api/api';
 
 export default function CreateObjectScreen() {
     const router = useRouter();
-    const [name, setName] = useState('');
+    const queryClient = useQueryClient();
+    const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
 
     const mutation = useMutation({
         mutationFn: (data: any) => apiService.createObject(data),
         onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['objects'] });
             Alert.alert('Success', 'Object created successfully');
-            setName('');
+            setTitle('');
             setDescription('');
             setImage(null);
             router.push('/(tabs)/objects'); // Redirect to list
@@ -39,10 +41,10 @@ export default function CreateObjectScreen() {
     };
 
     const handleSubmit = () => {
-        if (!name) return Alert.alert('Error', 'Name is required');
+        if (!title) return Alert.alert('Error', 'Title is required');
 
         mutation.mutate({
-            name,
+            title,
             description,
             image: image ? { uri: image.uri, type: 'image/jpeg', name: 'upload.jpg' } : undefined
         });
@@ -50,8 +52,8 @@ export default function CreateObjectScreen() {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>Name</Text>
-            <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Enter name" />
+            <Text style={styles.label}>Title</Text>
+            <TextInput style={styles.input} value={title} onChangeText={setTitle} placeholder="Enter title" />
 
             <Text style={styles.label}>Description</Text>
             <TextInput style={[styles.input, styles.textArea]} value={description} onChangeText={setDescription} placeholder="Enter description" multiline />

@@ -43,7 +43,7 @@ export default function ObjectListScreen() {
                             <View style={[styles.image, styles.placeholder]} />
                         )}
                         <View style={styles.content}>
-                            <Text style={styles.name}>{item.name}</Text>
+                            <Text style={styles.name}>{item.title}</Text>
                             {item.description && <Text style={styles.description} numberOfLines={2}>{item.description}</Text>}
                             <Text style={styles.date}>{new Date(item.createdAt).toLocaleDateString()}</Text>
                         </View>
